@@ -36,7 +36,7 @@ const DestinationModal = ({ isVisible, onClose, userId }) => {
 
     if (currentUser) {
       const uploadSuccess = await addDataToCollection(
-        `users/${currentUser.uid}/destinations`,
+        `destinations/${currentUser.uid}/destinations`,
         destinationData
       );
 
