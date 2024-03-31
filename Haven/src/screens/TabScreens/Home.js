@@ -1,34 +1,48 @@
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   FlatList,
+  Dimensions,
 } from "react-native";
-import React, { useState, useEffect } from "react";
 import DestinationModal from "../../components/modals/DestinationModal";
+import DestinationDetailModal from "../../components/modals/DestinationDetailModal";
 import { fetchDataFromCollection } from "../../functions/firestoreUpload";
 import { useAuth } from "../../auth/authContext";
 import { query, where, collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import DestinationDetailModal from "../../components/modals/DestinationDetailModal";
+import { LinearGradient } from "expo-linear-gradient";
+import MIcon from "@expo/vector-icons/MaterialIcons";
+import DailyVerse from "../../components/DailyVerse";
+import Topics from "../../components/carroussel/Topics";
+import Questions from "../../components/Questions";
+import Notes from "../../components/Notes";
 
-const Home = () => {
+// Key for AsyncStorage
+
+const Home = ({ navigation }) => {
+  // State variables
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [destinationsData, setDestinationsData] = useState([]);
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-
+  const [timers, setTimers] = useState([]);
   const { currentUser } = useAuth();
   const userId = currentUser.uid;
+
+  // Function to handle opening the add destination modal
   const handleAddDestination = () => {
     setIsModalVisible(true);
   };
+
+  // Function to handle closing the destination modal
   const handleCloseModal = () => {
     setIsModalVisible(false);
   };
 
-  // function that fetches destinations
+  // Effect to fetch destinations
   useEffect(() => {
     const fetchData = async () => {
       const fetchedDestinations = await fetchDataFromCollection(
@@ -39,7 +53,7 @@ const Home = () => {
 
     fetchData();
 
-    //onsnapshot listener
+    // Firestore snapshot listener
     const q = query(collection(db, `destinations/${userId}/destinations`));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -54,47 +68,24 @@ const Home = () => {
     return unsubscribe;
   }, []);
 
-  // Function to render each destination
-  const renderDestination = ({ item }) => (
-    <TouchableOpacity
-      style={styles.destinationItem}
-      onPress={() => {
-        setSelectedDestination(item);
-        setIsDetailModalVisible(true);
-      }}
-    >
-      <Text style={styles.destinationName}>{item.destinationName}</Text>
-      <Text>{item.address}</Text>
-      <Text>{item.numberOfPeople}</Text>
-      <Text>{item.duration}</Text>
-      <Text>TIMER HERE</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={handleAddDestination}
-        style={styles.addNameButton}
-      >
-        <Text style={styles.addButtonText}>Add Destination</Text>
-      </TouchableOpacity>
-      <DestinationModal isVisible={isModalVisible} onClose={handleCloseModal} />
-
-      <View>
-        <FlatList
-          data={destinationsData}
-          renderItem={renderDestination}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-      <DestinationDetailModal
-        isVisible={isDetailModalVisible}
-        onClose={() => setIsDetailModalVisible(false)}
-        destination={selectedDestination}
-      />
+      {/* <TouchableOpacity style={styles.addButton} onPress={handleAddDestination}>
+        <LinearGradient
+          start={{ x: 0.01, y: 0.25 }}
+          end={{ x: 0.99, y: 0.75 }}
+          locations={[0.01, 0.99]}
+          colors={["#d42c75", "#f7876b"]}
+          style={styles.addButtonGradient}
+        >
+          <MIcon color={"#fff"} name="add" style={styles.addIcon} size={70} />
+        </LinearGradient>
+      </TouchableOpacity> */}
+      <Text>Good Morning Username</Text>
+      <DailyVerse />
+      <Topics />
+      <Questions/>
+      <Notes/>
     </View>
   );
 };
@@ -105,7 +96,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    alignItems:'center'
+    alignItems: "center",
+    backgroundColor:"white"
   },
   addNameButton: {
     backgroundColor: "lightblue",
@@ -116,8 +108,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "lightgray",
     padding: 15,
-    margin:10,
-    alignItems:'center'
+    margin: 10,
+    alignItems: "center",
   },
   destinationName: {
     fontSize: 16,
